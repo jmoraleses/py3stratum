@@ -27,6 +27,7 @@ sudo python3 setup.py develop
 cp stratum/config_sample.py stratum/config.py
 
 b) From package, permanent install for production use
+git clone git://github.com/0x000000000019b6/py3stratum.git
 sudo apt-get install python3-dev
 sudo apt-get install python3-setuptools
 cd py3stratum

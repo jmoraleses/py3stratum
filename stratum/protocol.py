@@ -232,16 +232,14 @@ class Protocol(LineOnlyReceiver):
         msg_result = message.get('result')
         msg_error = message.get('error')
 
-        print("lofasz")                                
+                                
         if msg_method:
-            print("lofasz_1")
             # It's a RPC call or notification
             try:
                 result = self.event_handler._handle_event(msg_method, msg_params, connection_ref=self)
                 if result == None and msg_id != None:
                     # event handler must return Deferred object or raise an exception for RPC request
                     raise custom_exceptions.MethodNotFoundException("Event handler cannot process method '%s'" % msg_method)
-                print("lofasz_2")
             except Exception as exc:
                 print(exc)
                 failure = Failure()
@@ -254,8 +252,7 @@ class Protocol(LineOnlyReceiver):
                 else:
                     # It's a RPC call
                     result.addCallback(self.process_response, msg_id, msg_method, msg_params, request_counter)
-                    result.addErrback(self.process_failure, msg_id, msg_method, msg_params, request_counter)
-            print("lofasz_3")    
+                    result.addErrback(self.process_failure, msg_id, msg_method, msg_params, request_counter)    
         elif msg_id:
             # It's a RPC response
             # Perform lookup to the table of waiting requests.
@@ -266,15 +263,13 @@ class Protocol(LineOnlyReceiver):
                 del self.lookup_table[msg_id]
             except KeyError:
                 # When deferred object for given message ID isn't found, it's an error
-                raise custom_exceptions.ProtocolException("Lookup for deferred object for message ID '%s' failed." % msg_id)
-            print("lofasz_3")  
+                raise custom_exceptions.ProtocolException("Lookup for deferred object for message ID '%s' failed." % msg_id)  
             # If there's an error, handle it as errback
             # If both result and error are null, handle it as a success with blank result
             if msg_error != None:
                 meta['defer'].errback(custom_exceptions.RemoteServiceException(msg_error[0], msg_error[1], msg_error[2]))
             else:
-                meta['defer'].callback(msg_result)
-            print("lofasz_4") 
+                meta['defer'].callback(msg_result) 
         else:
             request_counter.decrease()
             raise custom_exceptions.ProtocolException("Cannot handle message '%s'" % line)

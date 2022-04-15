@@ -40,7 +40,7 @@ class Subscription(object):
     def get_key(self):
         '''This is an identifier for current subscription. It is sent to the client,
         so result should not contain any sensitive information.'''
-        return hashlib.md5(str((self.event, self.params))).hexdigest()
+        return hashlib.md5(str((self.event, self.params).encode('utf-8'))).hexdigest()
     
     def get_session(self):
         '''Connection session may be useful in filter or process functions'''

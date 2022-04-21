@@ -63,7 +63,9 @@ class Subscription(object):
         payload = self.process(*args, **kwargs)
         if payload != None:
             if isinstance(payload, (tuple, list)):
+                print(payload)
                 conn.writeJsonRequest(self.event, payload, is_notification=True)
+                print('after_writeJsonRequest')
                 self.after_emit(*args, **kwargs)
             else:
                 raise Exception("Return object from process() method must be list or None")
@@ -101,10 +103,23 @@ class Pubsub(object):
             raise custom_exceptions.AlreadySubscribedException("This connection is already subscribed for such event.")
         
         session['subscriptions'][key] = subscription
-                    
+
         cls.__subscriptions.setdefault(subscription.event, weakref.WeakKeyDictionary())
-        cls.__subscriptions[subscription.event][subscription] = None
+        # cls.__subscriptions[subEvent][subscription] = None
+                
+        #print('lofasz')        
+        subEvent = subscription.event
+        print(subEvent)
+        for sub in cls.__subscriptions.get(subEvent, weakref.WeakKeyDictionary()).keyrefs():
+            print('lofasz1')
+            sub = sub()
+            print('lofasz2')
+            if sub == subscription:
+                cls.__subscriptions[subEvent][key] = None
+                print('lofasz3')
+                break
         
+
         if hasattr(subscription, 'after_subscribe'):
             if connection.on_finish != None:
                 # If subscription is processed during the request, wait to

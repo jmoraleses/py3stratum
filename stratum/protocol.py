@@ -190,13 +190,17 @@ class Protocol(LineOnlyReceiver):
         print('serialized.encoded:',serialized)
         self.transport_write("%s\n" % serialized)
 
-    def writeJsonError(self, code, message, traceback, message_id, use_signature=False, sign_method='', sign_params=[]):       
+    def writeJsonError(self, code, message, traceback, message_id, use_signature=False, sign_method='', sign_params=[],result=None):       
         if use_signature:
             serialized = signature.jsonrpc_dumps_sign(self.factory.signing_key, self.factory.signing_id, False,\
                 message_id, sign_method, sign_params, None, (code, message, traceback))
         else:
-            serialized = json.dumps({'id': message_id, 'result': None, 'error': (code, message, traceback)})
+            serialized = json.dumps({'id': message_id, 'result': result, 'error': (code, message, traceback)})
         
+        print("         ")
+        print(serialized)
+        print("         ")
+
         self.transport_write("%s\n" % serialized)
 
     def writeGeneralError(self, message, code=-1):
@@ -309,7 +313,8 @@ class Protocol(LineOnlyReceiver):
         msg_params = message.get('params')
         msg_result = message.get('result')
         msg_error = message.get('error')
-                                
+        self.session['msg_id'] = msg_id
+            
         if msg_method:
             # It's a RPC call or notification
             try:

@@ -303,7 +303,7 @@ class Protocol(LineOnlyReceiver):
         except:
             #self.writeGeneralError("Cannot decode message '%s'" % line)
             request_counter.finish()
-            raise custom_exceptions.ProtocolException("Cannot decode message '%s'" % line.strip())
+            raise custom_exceptions.ProtocolException('Cannot decode message %s' % line.strip())
         
         if self.factory.debug:
             log.debug("> %s" % message)
@@ -321,7 +321,7 @@ class Protocol(LineOnlyReceiver):
                 result = self.event_handler._handle_event(msg_method, msg_params, connection_ref=self)
                 if result == None and msg_id != None:
                     # event handler must return Deferred object or raise an exception for RPC request
-                    raise custom_exceptions.MethodNotFoundException("Event handler cannot process method '%s'" % msg_method)
+                    raise custom_exceptions.MethodNotFoundException('Event handler cannot process method %s' % msg_method)
             except Exception as exc:
                 print(exc)
                 failure = Failure()
@@ -351,7 +351,7 @@ class Protocol(LineOnlyReceiver):
                 del self.lookup_table[msg_id]
             except KeyError:
                 # When deferred object for given message ID isn't found, it's an error
-                raise custom_exceptions.ProtocolException("Lookup for deferred object for message ID '%s' failed." % msg_id)  
+                raise custom_exceptions.ProtocolException('Lookup for deferred object for message ID %s failed.' % msg_id)  
             # If there's an error, handle it as errback
             # If both result and error are null, handle it as a success with blank result
             if msg_error != None:
@@ -360,7 +360,7 @@ class Protocol(LineOnlyReceiver):
                 meta['defer'].callback(msg_result) 
         else:
             request_counter.decrease()
-            raise custom_exceptions.ProtocolException("Cannot handle message '%s'" % line)
+            raise custom_exceptions.ProtocolException('Cannot handle message %s' % line)
           
     def rpc(self, method, params, is_notification=False):
         '''

@@ -32,7 +32,7 @@ if ecdsa:
 
 def generate_keypair():
     if not ecdsa:
-        raise custom_exceptions.SigningNotAvailableException("ecdsa not installed")
+        raise custom_exceptions.SigningNotAvailableException('ecdsa not installed')
     
     private_key = ecdsa.SigningKey.generate(curve=SECP256k1)
     public_key = private_key.get_verifying_key()
@@ -43,7 +43,7 @@ def load_privkey_pem(filename):
         
 def sign(privkey, data):
     if not ecdsa:
-        raise custom_exceptions.SigningNotAvailableException("ecdsa not installed")
+        raise custom_exceptions.SigningNotAvailableException('ecdsa not installed')
 
     hash = hashlib.sha256(data).digest()
     signature = privkey.sign_digest(hash, sigencode=ecdsa.util.sigencode_der)
@@ -51,7 +51,7 @@ def sign(privkey, data):
 
 def verify(pubkey, signature, data):
     if not ecdsa:
-        raise custom_exceptions.SigningNotAvailableException("ecdsa not installed")
+        raise custom_exceptions.SigningNotAvailableException('ecdsa not installed')
 
     hash = hashlib.sha256(data).digest()
     sign = base64.b64decode(signature)
@@ -94,12 +94,12 @@ def jsonrpc_loads_verify(pubkeys, txt):
     signature_time = data['sign_time']
     
     if signature_algo != 'ecdsa;SECP256k1':
-        raise custom_exceptions.UnknownSignatureAlgorithmException("%s is not supported" % signature_algo)
+        raise custom_exceptions.UnknownSignatureAlgorithmException('%s is not supported' % signature_algo)
     
     try:
         pubkey = pubkeys[signature_id]
     except KeyError:
-        raise custom_exceptions.UnknownSignatureIdException("Public key for '%s' not found" % signature_id)
+        raise custom_exceptions.UnknownSignatureIdException('Public key for %s not found' % signature_id)
     
     signature = data['sign']
     message_id = data['id']
@@ -113,7 +113,7 @@ def jsonrpc_loads_verify(pubkeys, txt):
     txt = jsonical.dumps(data)
     
     if not verify(pubkey, signature, txt):
-        raise custom_exceptions.SignatureVerificationFailedException("Signature doesn't match to given data")
+        raise custom_exceptions.SignatureVerificationFailedException('Signature does not match to given data')
     
     if method:
         # It's a request

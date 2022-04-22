@@ -89,18 +89,18 @@ class Pubsub(object):
     @classmethod
     def subscribe(cls, connection, subscription):
         if connection == None:
-            raise custom_exceptions.PubsubException("Subscriber not connected")
+            raise custom_exceptions.PubsubException('Subscriber not connected')
         
         key = subscription.get_key()
         session = ConnectionRegistry.get_session(connection)
         if session == None:
-            raise custom_exceptions.PubsubException("No session found")
+            raise custom_exceptions.PubsubException('No session found')
         
         subscription.connection_ref = weakref.ref(connection)
         session.setdefault('subscriptions', {})
         
         if key in session['subscriptions']:
-            raise custom_exceptions.AlreadySubscribedException("This connection is already subscribed for such event.")
+            raise custom_exceptions.AlreadySubscribedException('This connection is already subscribed for such event.')
         
         session['subscriptions'][key] = subscription
 
@@ -136,11 +136,11 @@ class Pubsub(object):
     @classmethod
     def unsubscribe(cls, connection, subscription=None, key=None):
         if connection == None:
-            raise custom_exceptions.PubsubException("Subscriber not connected")
+            raise custom_exceptions.PubsubException('Subscriber not connected')
         
         session = ConnectionRegistry.get_session(connection)
         if session == None:
-            raise custom_exceptions.PubsubException("No session found")
+            raise custom_exceptions.PubsubException('No session found')
         
         if subscription:
             key = subscription.get_key()
@@ -164,17 +164,17 @@ class Pubsub(object):
         '''Return subscription object for given connection and event'''
         session = ConnectionRegistry.get_session(connection)
         if session == None:
-            raise custom_exceptions.PubsubException("No session found")
+            raise custom_exceptions.PubsubException('No session found')
 
         if key == None:    
             sub = [ sub for sub in list(session.get('subscriptions', {}).values()) if sub.event == event ]
             try:
                 return sub[0]
             except IndexError:
-                raise custom_exceptions.PubsubException("Not subscribed for event %s" % event)
+                raise custom_exceptions.PubsubException('Not subscribed for event %s' % event)
 
         else:
-            raise Exception("Searching subscriptions by key is not implemented yet")
+            raise Exception('Searching subscriptions by key is not implemented yet')
               
     @classmethod
     def iterate_subscribers(cls, event):

@@ -79,7 +79,7 @@ class SocketTransportClientFactory(ReconnectingClientFactory):
         if self.client:
             return
         
-        e = custom_exceptions.TransportException("SocketTransportClientFactory connection timed out")
+        e = custom_exceptions.TransportException('SocketTransportClientFactory connection timed out')
         if not self.on_connect.called:
             d = self.on_connect
             self.on_connect = defer.Deferred()
@@ -90,7 +90,7 @@ class SocketTransportClientFactory(ReconnectingClientFactory):
         
     def rpc(self, method, params, *args, **kwargs):
         if not self.client:
-            raise custom_exceptions.TransportException("Not connected")
+            raise custom_exceptions.TransportException('Not connected')
         
         return self.client.rpc(method, params, *args, **kwargs)
     
@@ -101,7 +101,7 @@ class SocketTransportClientFactory(ReconnectingClientFactory):
         on restored connection.
         '''
         if not self.client:
-            raise custom_exceptions.TransportException("Not connected")
+            raise custom_exceptions.TransportException('Not connected')
         
         self.after_connect.append((method, params))
         return self.client.rpc(method, params, *args, **kwargs)

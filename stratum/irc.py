@@ -14,7 +14,7 @@ def get_connection():
     if _connection:
         return _connection
     
-    raise custom_exceptions.IrcClientException("IRC not connected")
+    raise custom_exceptions.IrcClientException('IRC not connected')
 
 class IrcLurker(irc.IRCClient):        
     def connectionMade(self):

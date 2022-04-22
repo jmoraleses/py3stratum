@@ -90,7 +90,8 @@ class Protocol(LineOnlyReceiver):
             # Transport is disconnected
         #    pass
         except Exception as Err:
-            print(Err)
+            #print(Err)
+            pass
         
     def connectionLost(self, reason):
         if self.on_disconnect != None and not self.on_disconnect.called:
@@ -103,14 +104,14 @@ class Protocol(LineOnlyReceiver):
  
     def writeJsonRequest(self, method, params, is_notification=False):
         request_id = None if is_notification else self._get_id()
-        print(str(request_id),str(method), str(params))
+
         data = params
         if isinstance(data, (tuple)):
             new_data = []
             for key in data:
                 skey = False
                 
-                #print(type(key), key)
+
                 if isinstance(key, (list)):
                     sub_data = []
                     for sub_key in key:
@@ -139,55 +140,34 @@ class Protocol(LineOnlyReceiver):
             data = new_data
 
         params = data
-        print(params)
 
         serialized = json.dumps({'id': request_id, 'method': method, 'params': params})
 
-        #serialized = str(serialized).replace("$","b'").replace("@","'") + "\n"
-        #serialized = str(serialized).replace("$","").replace("@","") + "\n"
-
         if self.factory.debug:
             log.debug("< %s" % serialized)
-        print('serialized:',serialized)
-        print('serialized.encoded:',serialized)
+
         self.transport_write("%s\n" % serialized)
         return request_id
         
     def writeJsonResponse(self, data, message_id, use_signature=False, sign_method='', sign_params=[]):
-        print('writeJsonResponse_1')
-        print(data)
-
         if isinstance(data, tuple):
             new_data = []
             for key in data:
                 if isinstance(key, (bytes)):
                     key = key.decode('utf-8', 'replace')
-                    #key = str(key)
-                    #key = str(key).replace("b'",'$').replace("'",'@')
                 new_data.append(key)
             data = new_data
-            #data = str(data).replace("b'",'').replace("'",'')
-        print(data)
-        print('writeJsonResponse_2')
+
         if use_signature:
-            print('writeJsonResponse_3')
             serialized = signature.jsonrpc_dumps_sign(self.factory.signing_key, self.factory.signing_id, False,\
                 message_id, sign_method, sign_params, data, None)
         else:
-            print('writeJsonResponse_4')
             serialized = json.dumps({'id': message_id, 'result': data, 'error': None})
-            #serialized = {'id': message_id, 'result': data, 'error': None}
 
-            #serialized = str(serialized).replace("$","b'").replace("@","'") + "\n"
-            #serialized = str(serialized).replace("$","").replace("@","") + "\n"
 
-        print('writeJsonResponse_5')
         if self.factory.debug:
-            print('writeJsonResponse_6')
             log.debug("< %s" % serialized)
-        print('serialized:',serialized)
-        print('writeJsonResponse_7')
-        print('serialized.encoded:',serialized)
+
         self.transport_write("%s\n" % serialized)
 
     def writeJsonError(self, code, message, traceback, message_id, use_signature=False, sign_method='', sign_params=[],result=None):       
@@ -197,10 +177,6 @@ class Protocol(LineOnlyReceiver):
         else:
             serialized = json.dumps({'id': message_id, 'result': result, 'error': (code, message, traceback)})
         
-        print("         ")
-        print(serialized)
-        print("         ")
-
         self.transport_write("%s\n" % serialized)
 
     def writeGeneralError(self, message, code=-1):
@@ -208,25 +184,18 @@ class Protocol(LineOnlyReceiver):
         return self.writeJsonError(code, message, None, None)
             
     def process_response(self, data, message_id, sign_method, sign_params, request_counter):
-        print('Result received: {}'.format(data))
         self.writeJsonResponse(data.result, message_id, data.sign, sign_method, sign_params)
         request_counter.decrease()
         
             
     def process_failure(self, failure, message_id, sign_method, sign_params, request_counter):
-        print('lofasz2')
-        print(failure.value)
         if not isinstance(failure.value, custom_exceptions.ServiceException):
-            print('lofasz3')
             # All handled exceptions should inherit from ServiceException class.
             # Throwing other exception class means that it is unhandled error
             # and we should log it.
-            log.exception(failure)
-            print('lofasz4')
-        print('lofasz5')    
+            log.exception(failure) 
         sign = False
         code = getattr(failure.value, 'code', -1)
-        print('lofasz6')
         #if isinstance(failure.value, services.ResultObject):
         #    # Strip ResultObject
         #    sign = failure.value.sign
@@ -250,7 +219,6 @@ class Protocol(LineOnlyReceiver):
         TODO: This would deserve some unit test to be sure that future twisted versions
         will work nicely with this.'''
         from struct import pack
-        print('data:',data)
 
         if request_counter == None:
             request_counter = RequestCounter()
@@ -261,7 +229,6 @@ class Protocol(LineOnlyReceiver):
         self.on_finish = request_counter.on_finish
         
         for line in lines:
-            print(line)
             if self.transport.disconnecting:
                 request_counter.finish()
                 return
@@ -282,7 +249,6 @@ class Protocol(LineOnlyReceiver):
             return self.lineLengthExceeded(self._buffer)        
         
     def lineReceived(self, line, request_counter):
-        print(line)
         if self.expect_tcp_proxy_protocol_header:
             # This flag may be set only for TCP transport AND when TCP_PROXY_PROTOCOL
             # is enabled in server config. Then we expect the first line of the stream
@@ -323,7 +289,6 @@ class Protocol(LineOnlyReceiver):
                     # event handler must return Deferred object or raise an exception for RPC request
                     raise custom_exceptions.MethodNotFoundException('Event handler cannot process method %s' % msg_method)
             except Exception as exc:
-                print(exc)
                 failure = Failure()
                 self.process_failure(failure, msg_id, msg_method, msg_params, request_counter)
             else:
@@ -333,11 +298,8 @@ class Protocol(LineOnlyReceiver):
                     request_counter.decrease()
                 else:
                     # It's a RPC call
-                    print(result)
                     result.addCallback(self.process_response, msg_id, msg_method, msg_params, request_counter)
-                    print('lofasz1')
                     result.addErrback(self.process_failure, msg_id, msg_method, msg_params, request_counter)
-                    print('lofasz_99')
                     
                  
             

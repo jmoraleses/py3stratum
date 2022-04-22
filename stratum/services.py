@@ -59,7 +59,8 @@ class ServiceFactory(object):
     def call(cls, method, params, connection_ref=None):
         try:
             (service_type, vendor, func_name) = cls._split_method(method)
-            print(service_type, vendor, func_name)
+            #print(service_type, vendor, func_name)
+            
             if service_type == "mining.extranonce":
                 service_type = "mining"
                 func_name = "extranonce_subscribe"

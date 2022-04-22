@@ -63,9 +63,7 @@ class Subscription(object):
         payload = self.process(*args, **kwargs)
         if payload != None:
             if isinstance(payload, (tuple, list)):
-                print(payload)
                 conn.writeJsonRequest(self.event, payload, is_notification=True)
-                print('after_writeJsonRequest')
                 self.after_emit(*args, **kwargs)
             else:
                 raise Exception("Return object from process() method must be list or None")
@@ -106,17 +104,13 @@ class Pubsub(object):
 
         cls.__subscriptions.setdefault(subscription.event, weakref.WeakKeyDictionary())
         # cls.__subscriptions[subEvent][subscription] = None
-                
-        #print('lofasz')        
+                     
         subEvent = subscription.event
-        print(subEvent)
+        
         for sub in cls.__subscriptions.get(subEvent, weakref.WeakKeyDictionary()).keyrefs():
-            print('lofasz1')
             sub = sub()
-            print('lofasz2')
             if sub == subscription:
                 cls.__subscriptions[subEvent][key] = None
-                print('lofasz3')
                 break
         
 

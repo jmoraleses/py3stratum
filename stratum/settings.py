@@ -20,10 +20,13 @@ def setup():
     from . import config_default
     
     try:
-        from . import config
+        #from . import config
+        from conf import config
     except ImportError:
         # Custom config not presented, but we can still use defaults
         config = None
+
+        
             
     import sys
     module = sys.modules[__name__]

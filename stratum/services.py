@@ -217,7 +217,7 @@ def admin(func):
 
         (password, args) = (args[1], [args[0],] + list(args[2:]))
 
-        if hashlib.sha256(password).hexdigest() != settings.ADMIN_PASSWORD_SHA256:
+        if hashlib.sha256(str(password).encode('utf-8','replace')).hexdigest() != settings.ADMIN_PASSWORD_SHA256:
             raise custom_exceptions.UnauthorizedException('Wrong password')
 
         return func(*args, **kwargs)

@@ -106,13 +106,13 @@ class Protocol(LineOnlyReceiver):
         request_id = None if is_notification else self._get_id()
 
         data = params
-        if isinstance(data, (tuple)):
+        if isinstance(data, (tuple,list)):
             new_data = []
             for key in data:
                 skey = False
                 
 
-                if isinstance(key, (list)):
+                if isinstance(key, (tuple,list)):
                     sub_data = []
                     for sub_key in key:
                         #print('subkey',type(sub_key), sub_key)
@@ -141,6 +141,8 @@ class Protocol(LineOnlyReceiver):
 
         params = data
 
+        print(params)
+
         serialized = json.dumps({'id': request_id, 'method': method, 'params': params})
 
         if self.factory.debug:
@@ -150,7 +152,7 @@ class Protocol(LineOnlyReceiver):
         return request_id
         
     def writeJsonResponse(self, data, message_id, use_signature=False, sign_method='', sign_params=[]):
-        if isinstance(data, tuple):
+        if isinstance(data, (tuple,list)):
             new_data = []
             for key in data:
                 if isinstance(key, (bytes)):

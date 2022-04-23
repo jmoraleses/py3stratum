@@ -141,7 +141,7 @@ class Protocol(LineOnlyReceiver):
 
         params = data
 
-        print(params)
+        #print(params)
 
         serialized = json.dumps({'id': request_id, 'method': method, 'params': params})
 
@@ -160,12 +160,13 @@ class Protocol(LineOnlyReceiver):
                 new_data.append(key)
             data = new_data
 
+        #print(data)
+
         if use_signature:
             serialized = signature.jsonrpc_dumps_sign(self.factory.signing_key, self.factory.signing_id, False,\
                 message_id, sign_method, sign_params, data, None)
         else:
             serialized = json.dumps({'id': message_id, 'result': data, 'error': None})
-
 
         if self.factory.debug:
             log.debug("< %s" % serialized)

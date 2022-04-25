@@ -22,7 +22,7 @@ def setup(setup_event=None):
 
     if settings.ENABLE_EXAMPLE_SERVICE:
         import stratum.example_service
-    
+
     if setup_event == None:
         setup_finalize(None, application)
     else:

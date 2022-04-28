@@ -101,7 +101,7 @@ class Pubsub(object):
             raise custom_exceptions.AlreadySubscribedException('This connection is already subscribed for such event.')
         
         session['subscriptions'][key] = subscription
-        print("subscription:",subscription.get_key())
+        #print("subscription:",subscription.get_key())
         cls.subscriptions.setdefault(subscription.event, weakref.WeakKeyDictionary())
         cls.subscriptions[subscription.event] = {}
         cls.subscriptions[subscription.event][subscription.get_key()] = subscription

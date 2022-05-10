@@ -45,20 +45,22 @@ ENABLE_EXAMPLE_SERVICE = True
 # Hostname or external IP to expose
 HOSTNAME = 'stratum.example.com'
 
-# Port used for Socket transport. Use 'None' for disabling the transport.
-LISTEN_SOCKET_TRANSPORT = 3333
+# Port used for TCP Socket transport. Use 'None' for disabling the transport.
+LISTEN_SOCKET_TCP = 3333
+# Port used for SSL Socket transport. Use 'None' for disabling the transport.
+LISTEN_SOCKET_SSL = 5555
 
 # Port used for HTTP Poll transport. Use 'None' for disabling the transport
-LISTEN_HTTP_TRANSPORT = 8000
+LISTEN_HTTP_TRANSPORT = None
 
 # Port used for HTTPS Poll transport
-LISTEN_HTTPS_TRANSPORT = 8001
+LISTEN_HTTPS_TRANSPORT = None
 
 # Port used for WebSocket transport, 'None' for disabling WS
-LISTEN_WS_TRANSPORT = 8002
+LISTEN_WS_TRANSPORT = None
 
 # Port used for secure WebSocket, 'None' for disabling WSS
-LISTEN_WSS_TRANSPORT = 8003
+LISTEN_WSS_TRANSPORT = None
 
 # ******************** SSL SETTINGS ******************
 

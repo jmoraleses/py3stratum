@@ -43,7 +43,7 @@ def setup_finalize(event, application):
     
     from . import socket_transport
     from . import http_transport
-    #import websocket_transport
+    #from . import websocket_transport
     from . import irc
     
     from stratum import settings
@@ -66,32 +66,48 @@ def setup_finalize(event, application):
     # Set up thread pool size for service threads
     reactor.suggestThreadPoolSize(settings.THREAD_POOL_SIZE) 
     
-    if settings.LISTEN_SOCKET_TRANSPORT:
+    if settings.LISTEN_SOCKET_TCP:
         # Attach Socket Transport service to application
-        socket = internet.TCPServer(settings.LISTEN_SOCKET_TRANSPORT,
+        socket = internet.TCPServer(settings.LISTEN_SOCKET_TCP,
                                 socket_transport.SocketTransportFactory(debug=settings.DEBUG,
                                                                         signing_key=signing_key,
                                                                         signing_id=settings.SIGNING_ID,
                                                                         event_handler=ServiceEventHandler,
-                                                                        tcp_proxy_protocol_enable=settings.TCP_PROXY_PROTOCOL))
+                                                                        tcp_proxy_protocol_enable=settings.TCP_PROXY_PROTOCOL
+                                                                        )
+                                    )
+        socket.setServiceParent(application)
+
+
+    if settings.LISTEN_SOCKET_SSL and sslContext:
+        # Attach Socket Transport service to application
+        socket = internet.SSLServer(settings.LISTEN_SOCKET_SSL,
+                                socket_transport.SocketTransportFactory(debug=settings.DEBUG,
+                                                                        signing_key=signing_key,
+                                                                        signing_id=settings.SIGNING_ID,
+                                                                        event_handler=ServiceEventHandler,
+                                                                        tcp_proxy_protocol_enable=settings.TCP_PROXY_PROTOCOL
+                                                                        ),
+                                    contextFactory = sslContext
+                                    )
         socket.setServiceParent(application)
 
     # Build the HTTP interface
-    httpsite = Site(http_transport.Root(debug=settings.DEBUG, signing_key=signing_key, signing_id=settings.SIGNING_ID,
-                                        event_handler=ServiceEventHandler))
-    httpsite.sessionFactory = http_transport.HttpSession
+    #httpsite = Site(http_transport.Root(debug=settings.DEBUG, signing_key=signing_key, signing_id=settings.SIGNING_ID,
+    #                                    event_handler=ServiceEventHandler))
+    #httpsite.sessionFactory = http_transport.HttpSession
 
-    if settings.LISTEN_HTTP_TRANSPORT:    
-        # Attach HTTP Poll Transport service to application
-        http = internet.TCPServer(settings.LISTEN_HTTP_TRANSPORT, httpsite)
-        http.setServiceParent(application)
+    #if settings.LISTEN_HTTP_TRANSPORT:    
+    #    # Attach HTTP Poll Transport service to application
+    #    http = internet.TCPServer(settings.LISTEN_HTTP_TRANSPORT, httpsite)
+    #    http.setServiceParent(application)
 
-    if settings.LISTEN_HTTPS_TRANSPORT and sslContext:
-            https = internet.SSLServer(settings.LISTEN_HTTPS_TRANSPORT, httpsite, contextFactory = sslContext)
-            https.setServiceParent(application)
+    #if settings.LISTEN_HTTPS_TRANSPORT and sslContext:
+    #        https = internet.SSLServer(settings.LISTEN_HTTPS_TRANSPORT, httpsite, contextFactory = sslContext)
+    #        https.setServiceParent(application)
     
     #if settings.LISTEN_WS_TRANSPORT:
-    #    from autobahn.websocket import listenWS
+    #    from autobahn.twisted.websocket import listenWS
     #    log.msg("Starting WS transport on %d" % settings.LISTEN_WS_TRANSPORT)
     #    ws = websocket_transport.WebsocketTransportFactory(settings.LISTEN_WS_TRANSPORT,
     #                                                       debug=settings.DEBUG,
@@ -110,8 +126,8 @@ def setup_finalize(event, application):
     #                                                        event_handler=ServiceEventHandler)
     #    listenWS(wss, contextFactory=sslContext)
     
-    if settings.IRC_NICK:
-        reactor.connectTCP(settings.IRC_SERVER, settings.IRC_PORT, irc.IrcLurkerFactory(settings.IRC_ROOM, settings.IRC_NICK, settings.IRC_HOSTNAME))
+    #if settings.IRC_NICK:
+    #    reactor.connectTCP(settings.IRC_SERVER, settings.IRC_PORT, irc.IrcLurkerFactory(settings.IRC_ROOM, settings.IRC_NICK, settings.IRC_HOSTNAME))
 
     return event
 
